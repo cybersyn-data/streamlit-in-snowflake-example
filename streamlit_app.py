@@ -86,7 +86,7 @@ def deposits_by_size_of_bank_chart():
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                     },
                     "y": {
@@ -189,7 +189,7 @@ def commercial_bank_deposits_chart():
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                         "axis": {
                             "format": "%y-%b",
@@ -293,7 +293,7 @@ def deposits_flows_chart():
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                     },
                     "y": {
@@ -382,7 +382,7 @@ def monthly_change_in_bank_branches_chart():
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                         "axis": {
                             "format": "%y-%b",
@@ -400,7 +400,7 @@ def monthly_change_in_bank_branches_chart():
                         "encoding": {
                             "y": {
                                 "field": "VALUE",
-                                "title": "Value",
+                                "title": "",
                                 "type": "quantitative",
                             },
                             "color": {
@@ -496,11 +496,11 @@ def banks_with_lowest_insured_deposits_chart():
                     "point": False,
                     "tooltip": True,
                 },
-                "title": "Big Banks (>$10bn Assets) with Lowest % FDIC Insured Deposits",
+                "title": "As of Dec '23: Banks w/ $10B Assets with Lowest FDIC Insured Deposits",
                 "encoding": {
                     "x": {
                         "field": "NAME",
-                        "title": "Name",
+                        "title": "",
                         "type": "nominal",
                         "sort": "y",
                         "axis": {"labelLimit": 0},
@@ -571,11 +571,11 @@ def bank_failures_chart():
                     "contains": "padding",
                     "resize": True,
                 },
-                "title": "Bank Failures",
+                "title": "Bank Failures by Quarter",
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                     },
                 },
@@ -671,7 +671,7 @@ def net_interest_income_vs_fed_funds_rate_chart():
                 "encoding": {
                     "x": {
                         "field": "DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                     },
                 },
@@ -798,12 +798,12 @@ def interest_expense_over_interest_income_ratio_vs_fed_funds_rate_chart():
                 "encoding": {
                     "x": {
                         "field": "DISPLAY_DATE",
-                        "title": "Date",
+                        "title": "",
                         "type": "temporal",
                     },
                     "y": {
                         "field": "VALUE",
-                        "title": "Value",
+                        "title": "",
                         "type": "quantitative",
                         "axis": {
                             "format": "%",
