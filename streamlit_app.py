@@ -88,6 +88,7 @@ def deposits_by_size_of_bank_chart():
                         "field": "DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                     },
                     "y": {
                         "field": "DEPOSITS",
@@ -194,6 +195,7 @@ def commercial_bank_deposits_chart():
                         "axis": {
                             "format": "%y-%b",
                         },
+                        "scale": {"type": "utc"},
                     },
                     "y": {
                         "field": "SMALL_BANK_PCT_DEPOSITS",
@@ -295,6 +297,7 @@ def deposits_flows_chart():
                         "field": "DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                     },
                     "y": {
                         "field": "VALUE",
@@ -387,6 +390,7 @@ def monthly_change_in_bank_branches_chart():
                         "axis": {
                             "format": "%y-%b",
                         },
+                        "scale": {"type": "utc"},
                     },
                 },
                 "resolve": {"scale": {"y": "independent"}},
@@ -577,6 +581,7 @@ def bank_failures_chart():
                         "field": "DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                     },
                 },
                 "resolve": {"scale": {"y": "independent"}},
@@ -673,6 +678,7 @@ def net_interest_income_vs_fed_funds_rate_chart():
                         "field": "DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                     },
                 },
                 "resolve": {"scale": {"y": "independent"}},
@@ -800,6 +806,7 @@ def interest_expense_over_interest_income_ratio_vs_fed_funds_rate_chart():
                         "field": "DISPLAY_DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                     },
                     "y": {
                         "field": "VALUE",
