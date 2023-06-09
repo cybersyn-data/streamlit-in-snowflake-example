@@ -57,6 +57,7 @@ def deposits_by_size_of_bank_chart():
 
     deposits_by_bank_size = session.sql(sql).to_pandas()
 
+    markdown("**Deposits By Size of Bank**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -82,7 +83,7 @@ def deposits_by_size_of_bank_chart():
                     "point": False,
                     "tooltip": True,
                 },
-                "title": "Deposits By Size of Bank",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
@@ -163,6 +164,7 @@ def commercial_bank_deposits_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**Share of Total Commercial Bank Deposits, Small Banks (Non-Top 25)**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -186,7 +188,7 @@ def commercial_bank_deposits_chart():
                     "point": False,
                     "tooltip": True,
                 },
-                "title": "Share of Total Commercial Bank Deposits, Small Banks (Non-Top 25)",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
@@ -268,6 +270,7 @@ def deposits_flows_chart():
 
     deposits_by_bank_size = session.sql(sql).to_pandas()
 
+    markdown("**Deposits Flows by Size of Bank, WoW**")
     value_chart_tab2, value_dataframe_tab2, value_query_tab2 = tabs(
         [
             "Chart",
@@ -291,7 +294,7 @@ def deposits_flows_chart():
                     "point": False,
                     "tooltip": True,
                 },
-                "title": "Deposits Flows by Size of Bank, WoW",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
@@ -362,6 +365,7 @@ def monthly_change_in_bank_branches_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**Monthly Change in Bank Branches Since Covid-19**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -381,16 +385,16 @@ def monthly_change_in_bank_branches_chart():
                     "contains": "padding",
                     "resize": True,
                 },
-                "title": "Monthly Change in Bank Branches Since Covid-19",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
                         "title": "",
                         "type": "temporal",
+                        "scale": {"type": "utc"},
                         "axis": {
                             "format": "%y-%b",
                         },
-                        "scale": {"type": "utc"},
                     },
                 },
                 "resolve": {"scale": {"y": "independent"}},
@@ -477,6 +481,7 @@ def banks_with_lowest_insured_deposits_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**As of Dec '23: Banks w/ $10B Assets with Lowest FDIC Insured Deposits**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -500,7 +505,7 @@ def banks_with_lowest_insured_deposits_chart():
                     "point": False,
                     "tooltip": True,
                 },
-                "title": "As of Dec '23: Banks w/ $10B Assets with Lowest FDIC Insured Deposits",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "NAME",
@@ -557,6 +562,7 @@ def bank_failures_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**Bank Failures by Quarter**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -575,7 +581,7 @@ def bank_failures_chart():
                     "contains": "padding",
                     "resize": True,
                 },
-                "title": "Bank Failures by Quarter",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
@@ -653,6 +659,7 @@ def net_interest_income_vs_fed_funds_rate_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**Banking Industry Net Interest Income vs. Fed Funds Rate**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -672,7 +679,7 @@ def net_interest_income_vs_fed_funds_rate_chart():
                     "contains": "padding",
                     "resize": True,
                 },
-                "title": "Banking Industry Net Interest Income vs. Fed Funds Rate",
+                "title": None,
                 "encoding": {
                     "x": {
                         "field": "DATE",
@@ -777,6 +784,7 @@ def interest_expense_over_interest_income_ratio_vs_fed_funds_rate_chart():
 
     data = session.sql(sql).to_pandas()
 
+    markdown("**Interest Expense / Interest Income Ratio vs. Fed Funds Rate**")
     value_chart_tab, value_dataframe_tab, value_query_tab = tabs(
         [
             "Chart",
@@ -795,7 +803,7 @@ def interest_expense_over_interest_income_ratio_vs_fed_funds_rate_chart():
                     "contains": "padding",
                     "resize": True,
                 },
-                "title": "Interest Expense / Interest Income Ratio vs. Fed Funds Rate",
+                "title": None,
                 "mark": {
                     "type": "line",
                     "point": False,
@@ -817,7 +825,7 @@ def interest_expense_over_interest_income_ratio_vs_fed_funds_rate_chart():
                         },
                     },
                     "color": {
-                        "title": "",
+                        "title": None,
                         "field": "DISPLAY_NAME",
                         "type": "nominal",
                     },
