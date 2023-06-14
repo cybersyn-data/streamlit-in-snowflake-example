@@ -250,27 +250,23 @@ def deposits_flows_chart():
     #            when you build external facing applications please sanitize sql to prevent sql injections
     #            https://xkcd.com/327/
     sql = f"""
-        WITH data AS (
-            SELECT date AS DATE,
-                    IFF(att.variable_name ILIKE '%Small Domestically Chartered%', 'All Other Banks', 'Top 25 Banks') AS bank_type,
-                    value AS DEPOSITS
-            FROM {DATABASE}.{SCHEMA}.financial_fred_timeseries AS ts
-            INNER JOIN {DATABASE}.{SCHEMA}.financial_fred_attributes AS att ON (ts.variable = att.variable)
-            WHERE att.variable_name IN ('Deposits, Small Domestically Chartered Commercial Banks, Seasonally adjusted, Weekly, USD',
-                                        'Deposits, Large Domestically Chartered Commercial Banks, Seasonally adjusted, Weekly, USD')
-              AND date >= '{str(min_year) + "-01-01"}'
-            ) SELECT date,
-                    bank_type,
-                    deposits - LAG(deposits, 1) OVER (PARTITION BY bank_type ORDER BY date) AS value
-        FROM data
-        WHERE (YEAR(date) BETWEEN '{start_y}' AND '{end_y}')
-        {("AND bank_type IN ('" + "','".join(bank_selection) + "')") if bank_selection else ""}
+        SELECT date AS DATE,
+               IFF(att.variable_name ILIKE '%Small Domestically Chartered%', 'All Other Banks', 'Top 25 Banks') AS bank_type,
+               value AS DEPOSITS,
+               deposits - LAG(deposits, 1) OVER (PARTITION BY bank_type ORDER BY date) AS value
+        FROM {DATABASE}.{SCHEMA}.financial_fred_timeseries AS ts
+        INNER JOIN {DATABASE}.{SCHEMA}.financial_fred_attributes AS att ON (ts.variable = att.variable)
+        WHERE att.variable_name IN ('Deposits, Small Domestically Chartered Commercial Banks, Seasonally adjusted, Weekly, USD',
+                                    'Deposits, Large Domestically Chartered Commercial Banks, Seasonally adjusted, Weekly, USD')
+          AND date >= '{str(min_year) + "-01-01"}'
+          AND (YEAR(date) BETWEEN '{start_y}' AND '{end_y}')
+          { ("AND bank_type IN ('" + "','".join(bank_selection) + "')") if bank_selection else ""}
         ;
     """
 
     deposits_by_bank_size = session.sql(sql).to_pandas()
 
-    markdown("**Deposits Flows by Size of Bank, WoW**")
+    markdown("**Deposit Flows by Size of Bank, WoW**")
     value_chart_tab2, value_dataframe_tab2, value_query_tab2 = tabs(
         [
             "Chart",
@@ -334,33 +330,36 @@ def monthly_change_in_bank_branches_chart():
     #            when you build external facing applications please sanitize sql to prevent sql injections
     #            https://xkcd.com/327/
     sql = f"""
-        WITH data2 AS (
-            WITH data AS (
-                SELECT 'Branch Openings' AS measure,
-                       DATE_TRUNC('month', start_date) AS date,
-                       COUNT(*) AS value
-                FROM {DATABASE}.{SCHEMA}.financial_branch_entities
-                WHERE category = 'Branch'
-                AND id_rssd_parent IN (SELECT id_rssd FROM {DATABASE}.{SCHEMA}.financial_institution_entities)
-                AND date >= '2018-01-01'
-                GROUP BY measure, date
-                UNION
-                SELECT 'Branch Closures' AS measure,
-                       DATE_TRUNC('month', end_date) AS date,
-                       -COUNT(*) AS value
-                FROM {DATABASE}.{SCHEMA}.financial_branch_entities
-                WHERE category = 'Branch'
-                AND id_rssd_parent IN (SELECT id_rssd FROM {DATABASE}.{SCHEMA}.financial_institution_entities)
-                AND end_date IS NOT NULL
-                AND date >= '2018-01-01'
-                GROUP BY measure, date
-            ) SELECT measure, date, value, SUM(value) OVER (PARTITION BY date) AS net_change
-            FROM data
-        ) SELECT measure, date, value, net_change AS MONTHLY_NET_CHANGE,
-                 SUM(net_change) OVER (PARTITION BY measure ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS CUMULATIVE_CHANGE
-        FROM data2
-        ORDER BY measure, date
-        ;
+        WITH rssd_parents AS (
+            SELECT id_rssd
+            FROM {DATABASE}.{SCHEMA}.financial_institution_entities
+        ), branch_openings_closures AS (
+            SELECT 'Branch Openings' AS measure,
+                   DATE_TRUNC('month', start_date) AS date,
+                   COUNT(*) AS value
+            FROM {DATABASE}.{SCHEMA}.financial_branch_entities AS open
+            JOIN rssd_parents ON (rssd_parents.id_rssd = open.id_rssd_parent)
+            WHERE category = 'Branch'
+            GROUP BY measure, date
+            UNION
+            SELECT 'Branch Closures' AS measure,
+                   DATE_TRUNC('month', end_date) AS date,
+                   -COUNT(*) AS value
+            FROM {DATABASE}.{SCHEMA}.financial_branch_entities AS close
+            JOIN rssd_parents ON (rssd_parents.id_rssd = close.id_rssd_parent)
+            WHERE category = 'Branch'
+              AND end_date IS NOT NULL
+            GROUP BY measure, date
+        ), net_change AS (
+            SELECT measure, date, value, SUM(value) OVER (PARTITION BY date) AS net_change
+            FROM branch_openings_closures
+        )
+        SELECT measure, date, value,
+               net_change AS MONTHLY_NET_CHANGE,
+               SUM(net_change) OVER (PARTITION BY measure ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS CUMULATIVE_CHANGE
+        FROM net_change
+        WHERE date >= '2018-01-01'
+        ORDER BY measure, date;
     """
 
     data = session.sql(sql).to_pandas()
@@ -454,29 +453,25 @@ def banks_with_lowest_insured_deposits_chart():
     #            when you build external facing applications please sanitize sql to prevent sql injections
     #            https://xkcd.com/327/
     sql = f"""
-        WITH data AS (
             WITH big_banks AS (
                 SELECT id_rssd
                 FROM {DATABASE}.{SCHEMA}.financial_institution_timeseries
-                WHERE variable = 'ASSET'
+                WHERE VARIABLE = 'ASSET'
                   AND date = '2022-12-31'
                   AND value > 1E10
             )
             SELECT name,
                    value AS pct_insured,
-                   ent.is_active
+                   IFF(is_active, 'Active', 'Failed') AS BANK_STATUS
             FROM {DATABASE}.{SCHEMA}.financial_institution_timeseries AS ts
-            INNER JOIN {DATABASE}.{SCHEMA}.financial_institution_attributes AS att ON (ts.variable = att.variable)
-            INNER JOIN {DATABASE}.{SCHEMA}.financial_institution_entities AS ent ON (ts.id_rssd = ent.id_rssd)
-            INNER JOIN big_banks ON (big_banks.id_rssd = ts.id_rssd)
-            WHERE ts.date = '2022-12-31'
-              AND att.variable_name = '% Insured (Estimated)'
-              AND att.frequency = 'Quarterly'
+            JOIN {DATABASE}.{SCHEMA}.financial_institution_attributes AS att ON (ts.variable = att.variable)
+            JOIN {DATABASE}.{SCHEMA}.financial_institution_entities AS ent ON (ts.id_rssd = ent.id_rssd)
+            JOIN big_banks ON (big_banks.id_rssd = ts.id_rssd)
+            AND ts.date = '2022-12-31'
+            AND att.variable_name = '% Insured (Estimated)'
+            AND att.frequency = 'Quarterly'
             ORDER BY pct_insured ASC
-        ) SELECT name, pct_insured,
-                 IFF(is_active, 'Active', 'Failed') AS BANK_STATUS
-        FROM data WHERE pct_insured <= .35
-        ;
+            LIMIT 15;
     """
 
     data = session.sql(sql).to_pandas()
